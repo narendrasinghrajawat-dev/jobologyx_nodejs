@@ -1,6 +1,8 @@
 node_modules/
 .env
 .env.local
+env/.env.test
+env/.env.production
 *.log
 npm-debug.log*
 .DS_Store

@@ -34,7 +34,21 @@ npm install
 
 ## 5. Environment Variables
 
-Copy `.env.example` to `.env` and fill in real values:
+Environment files live under `env/`, split by target, and are picked automatically based on `NODE_ENV`:
+
+| File | Loaded when | Tracked in git? |
+|---|---|---|
+| `env/.env.test` | `NODE_ENV` is unset or anything other than `production` (default for `npm run dev`) | No — gitignored |
+| `env/.env.production` | `NODE_ENV=production` | No — gitignored |
+| `env/.env.test.example` | — (template only) | Yes |
+| `env/.env.production.example` | — (template only) | Yes |
+
+Copy the relevant example to its real filename and fill in credentials:
+
+```bash
+cp env/.env.test.example env/.env.test
+cp env/.env.production.example env/.env.production
+```
 
 ```
 NODE_ENV=development
@@ -53,17 +67,19 @@ WEB_CLIENT_URL=
 ```
 
 - `WEB_CLIENT_URL` accepts a comma-separated list (e.g. local + deployed React URLs). The Flutter app is a native client and does not need a CORS entry.
+- The real `env/.env.test` and `env/.env.production` files are never pushed — they hold live credentials. Only the `.example` templates are committed.
+- To run locally against the production file (rare), set `NODE_ENV=production` before starting the server.
 
 ## 6. Database Setup
 
 1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
 2. Create a database user and whitelist your IP (or `0.0.0.0/0` for development).
-3. Copy the connection string into `MONGODB_URI` in `.env`.
+3. Copy the connection string into `MONGODB_URI` in `env/.env.test` (and `env/.env.production` for your production cluster).
 
 ## 7. Cloudinary Setup
 
 1. Create a free account at [cloudinary.com](https://cloudinary.com).
-2. From the dashboard, copy `Cloud Name`, `API Key`, and `API Secret` into `.env`.
+2. From the dashboard, copy `Cloud Name`, `API Key`, and `API Secret` into `env/.env.test` / `env/.env.production`.
 
 ## 8. Running Locally
 
@@ -223,6 +239,11 @@ seed/
   seed.js
 postman/
   JobologyX.postman_collection.json
+env/
+  .env.test.example
+  .env.production.example
+  .env.test          # gitignored, real credentials
+  .env.production     # gitignored, real credentials
 ```
 
 ## 16. Architecture Notes
