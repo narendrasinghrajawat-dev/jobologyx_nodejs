@@ -110,6 +110,18 @@
             },
             "url": { "raw": "{{baseUrl}}/users/me/resume", "host": ["{{baseUrl}}"], "path": ["users", "me", "resume"] }
           }
+        },
+        {
+          "name": "Upload Company Logo (Recruiter)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "logo", "type": "file", "src": "" }]
+            },
+            "url": { "raw": "{{baseUrl}}/users/me/company-logo", "host": ["{{baseUrl}}"], "path": ["users", "me", "company-logo"] }
+          }
         }
       ]
     },

@@ -86,4 +86,27 @@ router.post("/me/profile-image", uploadImage.single("image"), userController.upl
  */
 router.post("/me/resume", uploadResume.single("resume"), userController.uploadResume);
 
+/**
+ * @openapi
+ * /users/me/company-logo:
+ *   post:
+ *     tags: [Users]
+ *     summary: Upload/replace my company logo (recruiters only)
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               logo: { type: string, format: binary }
+ *     responses:
+ *       200:
+ *         description: Company logo uploaded
+ *       403:
+ *         description: Only recruiters can upload a company logo
+ */
+router.post("/me/company-logo", uploadImage.single("logo"), userController.uploadCompanyLogo);
+
 module.exports = router;

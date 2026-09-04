@@ -148,6 +148,7 @@ All routes are prefixed with `/api/v1`.
 | PATCH | `/users/me` | Authenticated |
 | POST | `/users/me/profile-image` | Authenticated (all roles) |
 | POST | `/users/me/resume` | Authenticated (job seeker only) |
+| POST | `/users/me/company-logo` | Authenticated (recruiter only) |
 
 ### Jobs
 | Method | Route | Access |

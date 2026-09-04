@@ -67,4 +67,21 @@ const uploadResume = async (userId, role, file) => {
   return user;
 };
 
-module.exports = { getMe, updateMe, uploadProfileImage, uploadResume };
+const uploadCompanyLogo = async (userId, role, file) => {
+  if (role !== "recruiter") {
+    throw new ApiError(403, "Only recruiters can upload a company logo");
+  }
+  if (!file) throw new ApiError(400, "No logo file provided");
+
+  const url = await storageService.uploadBuffer(file.buffer, "company-logos");
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { companyLogo: url },
+    { returnDocument: "after" }
+  );
+
+  return user;
+};
+
+module.exports = { getMe, updateMe, uploadProfileImage, uploadResume, uploadCompanyLogo };

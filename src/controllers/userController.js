@@ -22,4 +22,9 @@ const uploadResume = asyncHandler(async (req, res) => {
   sendSuccess(res, { message: "Resume uploaded", data: { user } });
 });
 
-module.exports = { getMe, updateMe, uploadProfileImage, uploadResume };
+const uploadCompanyLogo = asyncHandler(async (req, res) => {
+  const user = await userService.uploadCompanyLogo(req.user._id, req.user.role, req.file);
+  sendSuccess(res, { message: "Company logo uploaded", data: { user } });
+});
+
+module.exports = { getMe, updateMe, uploadProfileImage, uploadResume, uploadCompanyLogo };
