@@ -353,6 +353,25 @@
           }
         }
       ]
+    },
+    {
+      "name": "Master Data",
+      "item": [
+        {
+          "name": "Get All Master Data",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/master-data", "host": ["{{baseUrl}}"], "path": ["master-data"] }
+          }
+        },
+        {
+          "name": "Get One Type (e.g. jobType)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/master-data/jobType", "host": ["{{baseUrl}}"], "path": ["master-data", "jobType"] }
+          }
+        }
+      ]
     }
   ]
 }

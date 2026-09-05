@@ -4,6 +4,54 @@ const env = require("../src/config/env");
 const User = require("../src/models/User");
 const Job = require("../src/models/Job");
 const Application = require("../src/models/Application");
+const MasterData = require("../src/models/MasterData");
+
+// Read-only reference/lookup data for frontend dropdowns. `name` matches the
+// string enum value the API actually validates against — this list is NOT
+// the source of validation truth, it only mirrors those fixed values.
+const masterData = [
+  { type: "role", code: 1, name: "admin", label: "Admin", sortOrder: 1 },
+  { type: "role", code: 2, name: "recruiter", label: "Recruiter", sortOrder: 2 },
+  { type: "role", code: 3, name: "job_seeker", label: "Job Seeker", sortOrder: 3 },
+
+  { type: "jobType", code: 1, name: "full_time", label: "Full Time", sortOrder: 1 },
+  { type: "jobType", code: 2, name: "part_time", label: "Part Time", sortOrder: 2 },
+  { type: "jobType", code: 3, name: "contract", label: "Contract", sortOrder: 3 },
+  { type: "jobType", code: 4, name: "internship", label: "Internship", sortOrder: 4 },
+  { type: "jobType", code: 5, name: "freelance", label: "Freelance", sortOrder: 5 },
+
+  { type: "workMode", code: 1, name: "onsite", label: "On-site", sortOrder: 1 },
+  { type: "workMode", code: 2, name: "remote", label: "Remote", sortOrder: 2 },
+  { type: "workMode", code: 3, name: "hybrid", label: "Hybrid", sortOrder: 3 },
+
+  { type: "jobStatus", code: 1, name: "active", label: "Active", sortOrder: 1 },
+  { type: "jobStatus", code: 2, name: "closed", label: "Closed", sortOrder: 2 },
+  { type: "jobStatus", code: 3, name: "draft", label: "Draft", sortOrder: 3 },
+
+  { type: "applicationStatus", code: 1, name: "applied", label: "Applied", sortOrder: 1 },
+  { type: "applicationStatus", code: 2, name: "reviewing", label: "Reviewing", sortOrder: 2 },
+  { type: "applicationStatus", code: 3, name: "shortlisted", label: "Shortlisted", sortOrder: 3 },
+  { type: "applicationStatus", code: 4, name: "rejected", label: "Rejected", sortOrder: 4 },
+  { type: "applicationStatus", code: 5, name: "hired", label: "Hired", sortOrder: 5 },
+
+  { type: "category", code: 1, name: "Engineering", label: "Engineering", sortOrder: 1 },
+  { type: "category", code: 2, name: "Design", label: "Design", sortOrder: 2 },
+  { type: "category", code: 3, name: "Data", label: "Data", sortOrder: 3 },
+  { type: "category", code: 4, name: "Product", label: "Product", sortOrder: 4 },
+  { type: "category", code: 5, name: "Infrastructure", label: "Infrastructure", sortOrder: 5 },
+  { type: "category", code: 6, name: "Quality Assurance", label: "Quality Assurance", sortOrder: 6 },
+  { type: "category", code: 7, name: "Marketing", label: "Marketing", sortOrder: 7 },
+  { type: "category", code: 8, name: "Sales", label: "Sales", sortOrder: 8 },
+  { type: "category", code: 9, name: "Human Resources", label: "Human Resources", sortOrder: 9 },
+  { type: "category", code: 10, name: "Customer Support", label: "Customer Support", sortOrder: 10 },
+  { type: "category", code: 11, name: "Finance", label: "Finance", sortOrder: 11 },
+
+  { type: "experienceLevel", code: 1, name: "0-1 years", label: "Fresher (0-1 years)", sortOrder: 1 },
+  { type: "experienceLevel", code: 2, name: "1-3 years", label: "Junior (1-3 years)", sortOrder: 2 },
+  { type: "experienceLevel", code: 3, name: "3-5 years", label: "Mid-level (3-5 years)", sortOrder: 3 },
+  { type: "experienceLevel", code: 4, name: "5-8 years", label: "Senior (5-8 years)", sortOrder: 4 },
+  { type: "experienceLevel", code: 5, name: "8+ years", label: "Lead / Principal (8+ years)", sortOrder: 5 },
+];
 
 const jobSeekersData = [
   { name: "Aarav Sharma", email: "aarav.seeker@example.com", skills: ["JavaScript", "React", "Node.js"], location: "Jaipur" },
@@ -32,15 +80,15 @@ const recruitersData = [
 
 const jobTemplates = [
   { title: "Frontend Developer", jobType: "full_time", workMode: "remote", category: "Engineering", experience: "1-3 years", salaryMin: 500000, salaryMax: 900000, skills: ["React", "JavaScript", "CSS"] },
-  { title: "Backend Developer", jobType: "full_time", workMode: "hybrid", category: "Engineering", experience: "2-4 years", salaryMin: 700000, salaryMax: 1200000, skills: ["Node.js", "MongoDB", "Express"] },
+  { title: "Backend Developer", jobType: "full_time", workMode: "hybrid", category: "Engineering", experience: "1-3 years", salaryMin: 700000, salaryMax: 1200000, skills: ["Node.js", "MongoDB", "Express"] },
   { title: "Flutter Developer", jobType: "full_time", workMode: "remote", category: "Engineering", experience: "1-3 years", salaryMin: 600000, salaryMax: 1000000, skills: ["Flutter", "Dart"] },
   { title: "DevOps Engineer", jobType: "full_time", workMode: "onsite", category: "Infrastructure", experience: "3-5 years", salaryMin: 900000, salaryMax: 1500000, skills: ["AWS", "Docker", "CI/CD"] },
   { title: "UI/UX Designer", jobType: "full_time", workMode: "hybrid", category: "Design", experience: "1-3 years", salaryMin: 500000, salaryMax: 800000, skills: ["Figma", "UI/UX"] },
   { title: "QA Engineer Intern", jobType: "internship", workMode: "onsite", category: "Quality Assurance", experience: "0-1 years", salaryMin: 150000, salaryMax: 250000, skills: ["Manual Testing", "Selenium"] },
-  { title: "Data Analyst", jobType: "full_time", workMode: "remote", category: "Data", experience: "2-4 years", salaryMin: 600000, salaryMax: 1000000, skills: ["SQL", "Python", "Excel"] },
-  { title: "Product Manager", jobType: "full_time", workMode: "hybrid", category: "Product", experience: "4-6 years", salaryMin: 1200000, salaryMax: 2000000, skills: ["Roadmapping", "Agile"] },
-  { title: "Contract Java Developer", jobType: "contract", workMode: "remote", category: "Engineering", experience: "2-5 years", salaryMin: 800000, salaryMax: 1400000, skills: ["Java", "Spring Boot"] },
-  { title: "Freelance Content Writer", jobType: "freelance", workMode: "remote", category: "Marketing", experience: "1-2 years", salaryMin: 200000, salaryMax: 400000, skills: ["SEO", "Content Writing"] },
+  { title: "Data Analyst", jobType: "full_time", workMode: "remote", category: "Data", experience: "1-3 years", salaryMin: 600000, salaryMax: 1000000, skills: ["SQL", "Python", "Excel"] },
+  { title: "Product Manager", jobType: "full_time", workMode: "hybrid", category: "Product", experience: "5-8 years", salaryMin: 1200000, salaryMax: 2000000, skills: ["Roadmapping", "Agile"] },
+  { title: "Contract Java Developer", jobType: "contract", workMode: "remote", category: "Engineering", experience: "3-5 years", salaryMin: 800000, salaryMax: 1400000, skills: ["Java", "Spring Boot"] },
+  { title: "Freelance Content Writer", jobType: "freelance", workMode: "remote", category: "Marketing", experience: "0-1 years", salaryMin: 200000, salaryMax: 400000, skills: ["SEO", "Content Writing"] },
 ];
 
 const locations = ["Jaipur", "Bengaluru", "Pune", "Delhi", "Mumbai", "Hyderabad", "Remote"];
@@ -49,8 +97,15 @@ const run = async () => {
   await mongoose.connect(env.MONGODB_URI);
   console.log("Connected to MongoDB for seeding...");
 
-  await Promise.all([User.deleteMany({}), Job.deleteMany({}), Application.deleteMany({})]);
-  console.log("Cleared existing users, jobs, and applications.");
+  await Promise.all([
+    User.deleteMany({}),
+    Job.deleteMany({}),
+    Application.deleteMany({}),
+    MasterData.deleteMany({}),
+  ]);
+  console.log("Cleared existing users, jobs, applications, and master data.");
+
+  await MasterData.insertMany(masterData);
 
   const admin = await User.create({
     name: "Admin User",
@@ -124,6 +179,7 @@ const run = async () => {
   await Application.create(applications);
 
   console.log("Seed complete:");
+  console.log(`  ${masterData.length} master data entries (roles, jobTypes, workModes, jobStatuses, applicationStatuses, categories, experienceLevels)`);
   console.log(`  1 admin       -> ${admin.email} / Admin@123`);
   console.log(`  ${recruiters.length} recruiters -> Recruiter@123`);
   console.log(`  ${jobSeekers.length} job seekers -> Seeker@123`);

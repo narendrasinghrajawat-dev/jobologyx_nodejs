@@ -15,6 +15,7 @@ const userRoutes = require("./routes/userRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const masterDataRoutes = require("./routes/masterDataRoutes");
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1/applications", applicationRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/master-data", masterDataRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

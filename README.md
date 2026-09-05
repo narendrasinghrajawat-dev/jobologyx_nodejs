@@ -180,6 +180,14 @@ All routes are prefixed with `/api/v1`.
 | DELETE | `/admin/jobs/:id` | Admin |
 | GET | `/admin/applications` | Admin |
 
+### Master Data
+| Method | Route | Access |
+|---|---|---|
+| GET | `/master-data` | Public — all reference/lookup data grouped by type |
+| GET | `/master-data/:type` | Public — one type only (`role`, `jobType`, `workMode`, `jobStatus`, `applicationStatus`, `category`, `experienceLevel`) |
+
+See §17 for details on what this is for and how it relates to the actual validated fields.
+
 ## 14. Sample Requests / Responses
 
 **Register**
@@ -252,3 +260,29 @@ env/
 - **Controller/Service split**: controllers only handle req/res; all business logic and DB access lives in `services/`.
 - **Storage abstraction**: `services/storageService.js` wraps Cloudinary uploads behind a generic `uploadBuffer()` function, so swapping to AWS S3/MinIO later only touches this one file.
 - **No local disk writes**: Multer uses memory storage — file buffers stream directly to Cloudinary.
+
+## 17. Master Data (Reference/Lookup Data for Frontend Forms)
+
+`GET /api/v1/master-data` returns everything a form's dropdowns need in one call, grouped by type:
+
+```json
+{
+  "success": true,
+  "message": "Master data fetched",
+  "data": {
+    "roles": [{ "code": 1, "name": "admin", "label": "Admin" }, ...],
+    "jobTypes": [{ "code": 1, "name": "full_time", "label": "Full Time" }, ...],
+    "workModes": [...],
+    "jobStatuses": [...],
+    "applicationStatuses": [...],
+    "categories": [...],
+    "experienceLevels": [...]
+  }
+}
+```
+
+`GET /api/v1/master-data/:type` returns just one type's array (e.g. `/master-data/jobType`).
+
+**Important — this is display/reference data only, not the validation source.** `name` in each entry matches the exact string the API validates against (`role`, `jobType`, `workMode`, `job.status`, `application.status` are still plain Mongoose string enums, completely unchanged — see `src/models/User.js`, `src/models/Job.js`, `src/models/Application.js`). `label` is what you show the user; `code` is a stable numeric id if you want one (e.g. for a `<select>`'s `value`). When submitting a form, **send the `name` string back to the API** (e.g. `"role": "recruiter"`, `"jobType": "full_time"`) — not the numeric `code`. The API does not accept numeric codes for these fields.
+
+Seeded via `seed/seed.js` into a `master_data` collection (backed by `src/models/MasterData.js`), alongside Users/Jobs/Applications — running `npm run seed` refreshes it.

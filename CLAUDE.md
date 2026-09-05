@@ -29,14 +29,15 @@ src/
   config/       env, db, cloudinary, swagger setup
   controllers/  req/res only — no business logic here
   middleware/   auth, roles, upload, error handling, rate limiting
-  models/       User, Job, Application (Mongoose schemas)
+  models/       User, Job, Application (Mongoose schemas) + MasterData (read-only lookup)
   routes/       route wiring + Swagger JSDoc annotations
   services/     business logic + DB operations (controllers call these)
   validators/   express-validator rule sets
   utils/        asyncHandler, apiResponse (ApiError + sendSuccess), generateToken
   app.js        Express app wiring (no listen())
   server.js     connects DB, then starts the HTTP listener
-seed/seed.js    demo data: 1 admin, 2 recruiters, 5 job seekers, 10 jobs, applications
+seed/seed.js    demo data: 1 admin, 2 recruiters, 5 job seekers, 10 jobs, applications,
+                and the master_data collection (see below)
 postman/        exported Postman collection
 env/            environment files — see "Environment files" below
 ```
@@ -55,6 +56,27 @@ success responses and throw `ApiError(statusCode, message)` for failures —
 the centralized `errorMiddleware` converts thrown errors (including
 Mongoose CastError/ValidationError/duplicate-key and Multer errors) into
 that same shape. Never leak stack traces outside development.
+
+## Master data (reference/lookup data)
+
+`src/models/MasterData.js` backs a `master_data` collection, seeded by
+`seed/seed.js`, served publicly via `GET /api/v1/master-data` (all types,
+grouped) and `GET /api/v1/master-data/:type` (one type). It exists purely so
+a frontend can populate dropdowns (roles, jobType, workMode, jobStatus,
+applicationStatus, category, experienceLevel) from one API call instead of
+hardcoding option lists.
+
+**This is deliberately NOT the source of validation truth.** `User.role`,
+`Job.jobType`/`workMode`/`status`, and `Application.status` remain plain
+Mongoose string enums, exactly as before — nothing about auth/authorization
+changed. Each master-data entry's `name` field matches the exact string
+those enums validate against; `code` is a stable numeric id for display use
+only (e.g. a `<select>` value), never accepted by the API as input. Do not
+wire any `authorizeRoles()` call, JWT payload, or Mongoose enum to read from
+this collection — that coupling was intentionally rejected (it would mean
+an extra DB lookup on every authorization check for a fixed, hardcoded set
+of 3 roles, with no actual decoupling benefit since the role-specific logic
+in controllers/services stays hardcoded regardless).
 
 ## Environment files
 
