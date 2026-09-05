@@ -1,6 +1,7 @@
 const express = require("express");
 const jobController = require("../controllers/jobController");
 const protect = require("../middleware/authMiddleware");
+const { optionalAuth } = protect;
 const authorizeRoles = require("../middleware/roleMiddleware");
 const { createJobValidator, updateJobValidator } = require("../validators/jobValidator");
 const validate = require("../validators/validate");
@@ -43,6 +44,10 @@ const router = express.Router();
  *         name: status
  *         schema: { type: string, enum: [active, closed, draft] }
  *       - in: query
+ *         name: mine
+ *         schema: { type: boolean }
+ *         description: When true and authenticated as the owning recruiter, scopes results to the caller's own jobs (any status)
+ *       - in: query
  *         name: sort
  *         schema: { type: string, enum: [latest, oldest, salaryHigh, salaryLow] }
  *       - in: query
@@ -84,7 +89,7 @@ const router = express.Router();
  */
 router
   .route("/")
-  .get(jobController.listJobs)
+  .get(optionalAuth, jobController.listJobs)
   .post(protect, authorizeRoles("recruiter"), createJobValidator, validate, jobController.createJob);
 
 /**

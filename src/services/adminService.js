@@ -103,6 +103,7 @@ const listApplications = async (query) => {
     Application.find(filter)
       .populate("job", "title companyName")
       .populate("applicant", "name email")
+      .populate("recruiter", "name email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),

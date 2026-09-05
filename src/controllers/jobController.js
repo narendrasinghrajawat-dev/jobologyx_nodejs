@@ -3,7 +3,7 @@ const { sendSuccess } = require("../utils/apiResponse");
 const jobService = require("../services/jobService");
 
 const listJobs = asyncHandler(async (req, res) => {
-  const { jobs, pagination } = await jobService.listJobs(req.query);
+  const { jobs, pagination } = await jobService.listJobs(req.query, req.user);
   sendSuccess(res, { message: "Jobs fetched", data: { jobs, pagination } });
 });
 

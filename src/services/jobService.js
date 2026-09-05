@@ -41,14 +41,22 @@ const buildFilter = (query) => {
   return filter;
 };
 
-const listJobs = async (query) => {
+const listJobs = async (query, requestingUser) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Number(query.limit) || 10, MAX_LIMIT);
   const skip = (page - 1) * limit;
 
-  // Public listing should only ever surface active jobs unless explicitly overridden
   const filter = buildFilter(query);
-  if (!query.status) filter.status = "active";
+
+  // `mine=true` scopes the listing to the authenticated recruiter's own jobs
+  // (any status), so recruiters can see their drafts/closed jobs too.
+  const isOwnListing = query.mine === "true" && requestingUser;
+  if (isOwnListing) {
+    filter.createdBy = requestingUser._id;
+  }
+
+  // Public listing should only ever surface active jobs unless explicitly overridden
+  if (!query.status && !isOwnListing) filter.status = "active";
 
   const sort = SORT_MAP[query.sort] || SORT_MAP.latest;
 
