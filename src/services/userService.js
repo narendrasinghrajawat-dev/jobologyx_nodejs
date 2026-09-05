@@ -60,7 +60,7 @@ const uploadResume = async (userId, role, file) => {
 
   const user = await User.findByIdAndUpdate(
     userId,
-    { resumeUrl: url },
+    { resumeUrl: url, resumeFileName: file.originalname },
     { returnDocument: "after" }
   );
 

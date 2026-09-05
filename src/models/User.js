@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     profileImage: { type: String, default: "" },
     resumeUrl: { type: String, default: "" },
+    resumeFileName: { type: String, default: "" },
     bio: { type: String, default: "" },
     skills: { type: [String], default: [] },
     location: { type: String, default: "" },
