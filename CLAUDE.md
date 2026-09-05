@@ -99,6 +99,6 @@ switches the loaded file to `env/.env.production`.
 
 ## Branching
 
-`master` is production. Work lands on `test` first; only merge to `master`
+`main` is production. Work lands on `test` first; only merge to `main`
 once it's been verified end-to-end (manual pass per the README's test
 checklist — there is no automated test suite for this phase).
