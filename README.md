@@ -153,7 +153,7 @@ All routes are prefixed with `/api/v1`.
 ### Jobs
 | Method | Route | Access |
 |---|---|---|
-| GET | `/jobs` | Public — supports `search`, `location`, `jobType`, `workMode`, `category`, `experience`, `salaryMin`, `salaryMax`, `status`, `sort`, `page`, `limit` |
+| GET | `/jobs` | Public — supports `search`, `location`, `jobType`, `workMode`, `category`, `experience`, `salaryMin`, `salaryMax`, `status`, `sort`, `page`, `limit`. Optionally authenticated: pass `mine=true` with a recruiter's token to list only that recruiter's own jobs (any status, not just `active`) |
 | GET | `/jobs/:id` | Public |
 | POST | `/jobs` | Recruiter |
 | PATCH | `/jobs/:id` | Recruiter (own job) |
