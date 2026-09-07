@@ -21,7 +21,7 @@ const app = express();
 
 app.use(helmet());
 
-// Only the React web origin needs CORS; the Flutter app is a native client, not a browser.
+// Allowed origins for React web, Flutter web (GitHub Pages, Vercel, localhost), and mobile apps.
 const allowedOrigins = env.WEB_CLIENT_URL.split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -29,10 +29,20 @@ const allowedOrigins = env.WEB_CLIENT_URL.split(",")
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like Flutter mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      // Allow if explicitly configured in WEB_CLIENT_URL or standard web deployments
+      if (
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".github.io") ||
+        origin.endsWith(".vercel.app") ||
+        origin.startsWith("http://localhost:")
+      ) {
         return callback(null, true);
       }
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     },
     credentials: true,
   })
